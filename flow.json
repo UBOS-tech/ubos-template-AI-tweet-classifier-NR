@@ -1,1 +1,151 @@
-[]
+[
+    {
+        "id": "499825f2ccb76b75",
+        "type": "tab",
+        "label": "Tweet classifier",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "02ac919a267e6d4f",
+        "type": "http in",
+        "z": "499825f2ccb76b75",
+        "name": "",
+        "url": "/createTweet",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 110,
+        "y": 60,
+        "wires": [
+            [
+                "d2e58cd654625737"
+            ]
+        ]
+    },
+    {
+        "id": "d2e58cd654625737",
+        "type": "function",
+        "z": "499825f2ccb76b75",
+        "name": "OpenAI API properties",
+        "func": "\n//const api_key = global.get('process_env').OPENAI_API\nconst api_key = msg.payload.key;\nconst content = msg.payload.text;\n\n// OpenAI API properties\nconst settings = {\n    model: \"text-davinci-003\",\n    prompt: content,\n    temperature: 0,\n    max_tokens: 60,\n    top_p: 1.0,\n    frequency_penalty: 0.5,\n    presence_penalty: 0.0\n\n};\n\nif (api_key) {\n    msg.url = 'https://api.openai.com/v1/completions';\n    msg.headers = {\n        'Content-Type': 'application/json',\n        'Authorization': `Bearer ${api_key}`,\n    };\n    msg.payload = settings;\n    msg.settings = settings;\n    return [msg, null];\n} else {\n    msg.payload = settings;\n    msg.settings = settings;\n    return [null, msg];\n}\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 60,
+        "wires": [
+            [
+                "37dc33f17f800bad"
+            ],
+            [
+                "15360ad8395f87e8"
+            ]
+        ]
+    },
+    {
+        "id": "37dc33f17f800bad",
+        "type": "http request",
+        "z": "499825f2ccb76b75",
+        "name": "OpenAI API",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 590,
+        "y": 60,
+        "wires": [
+            [
+                "27bf99be28a29167"
+            ]
+        ]
+    },
+    {
+        "id": "27bf99be28a29167",
+        "type": "function",
+        "z": "499825f2ccb76b75",
+        "name": "Response",
+        "func": "function convertPayloadToObject(msg) {\n    let objArr = [];\n    for (const [key, value] of Object.entries(msg)) {\n        objArr.push({ key, value });\n    }\n    return objArr;\n}\nif (!msg.payload.error) {\n    msg.payload = {\n        succsess: true,\n        text: msg.payload.choices[0].text,\n        settings: convertPayloadToObject(msg.settings)\n    }\n} else {\n    msg.payload = {\n        succsess: false,\n        payload: msg.payload.error.code\n    }\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 780,
+        "y": 60,
+        "wires": [
+            [
+                "3306cf80e04de344",
+                "e71fd6e59aa1bc61"
+            ]
+        ]
+    },
+    {
+        "id": "3306cf80e04de344",
+        "type": "http response",
+        "z": "499825f2ccb76b75",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 970,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "e71fd6e59aa1bc61",
+        "type": "debug",
+        "z": "499825f2ccb76b75",
+        "name": "succses",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 960,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "15360ad8395f87e8",
+        "type": "function",
+        "z": "499825f2ccb76b75",
+        "name": "Response",
+        "func": "function convertPayloadToObject(msg) {\n    let objArr = [];\n    for (const [key, value] of Object.entries(msg)) {\n        objArr.push({ key, value });\n    }\n    return objArr;\n}\n\nmsg.payload = {\n    settings: convertPayloadToObject(msg.settings)\n}\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 590,
+        "y": 120,
+        "wires": [
+            [
+                "eb1ee580f826c337"
+            ]
+        ]
+    },
+    {
+        "id": "eb1ee580f826c337",
+        "type": "http response",
+        "z": "499825f2ccb76b75",
+        "name": "",
+        "statusCode": "",
+        "headers": {},
+        "x": 740,
+        "y": 120,
+        "wires": []
+    }
+]
